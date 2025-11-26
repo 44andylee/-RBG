@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import random
 from dataclasses import dataclass
 from typing import List
 
@@ -13,6 +14,7 @@ class Enemy:
     toughness: int = 40
     hp: int = None
     staggered: bool = False
+    heavy_prepared: bool = False
     action_log: List[str] = None
 
     def __post_init__(self) -> None:
@@ -30,6 +32,7 @@ class Enemy:
             self.toughness = max(0, self.toughness - toughness_break)
             if self.toughness == 0:
                 self.staggered = True
+                self.action_log.append(f"{self.name} 被击破，进入硬直状态！")
         return damage
 
     def recover_toughness(self, amount: int = 10) -> None:
@@ -44,6 +47,10 @@ class Enemy:
             self.action_log.append(f"{self.name} 从硬直中恢复，韧性重置为 20。")
         else:
             self.recover_toughness(5)
+        if not self.heavy_prepared and not self.staggered:
+            self.heavy_prepared = True if random.random() < 0.35 else False
+            if self.heavy_prepared:
+                self.action_log.append(f"{self.name} 蓄力，下一次攻击将造成重击！")
 
     def log(self, message: str) -> None:
         self.action_log.append(message)
